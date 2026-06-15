@@ -1,0 +1,43 @@
+# Phase 1 — Extraction config
+# Edit "contact" to your real email (MediaWiki policy requires identifying yourself).
+
+contact: "sharath199717@gmail.com"
+data_dir: "data/raw"
+
+# Politeness / robustness
+request_delay_seconds: 1.0      # min delay between requests to the same host
+max_retries: 5                  # retries on 429/503/network errors
+backoff_base_seconds: 2.0       # exponential backoff base
+batch_size: 50                  # titles per content request (API max is 50)
+timeout_seconds: 30
+
+sources:
+  wikipedia_en:
+    api: "https://en.wikipedia.org/w/api.php"
+    use_maxlag: true            # Wikimedia asks bots to honor maxlag
+    maxlag: 5
+    # Wikipedia category trees are messy; keep depth shallow.
+    discovery:
+      categories:
+        - "Marvel Comics characters"
+        - "DC Comics characters"
+      max_depth: 2              # how many sub-category levels to walk
+      include_subcats: true
+
+  marvel_fandom:
+    api: "https://marvel.fandom.com/api.php"
+    use_maxlag: false
+    discovery:
+      categories:
+        - "Characters"         # master character category on the Marvel Database
+      max_depth: 0             # 0 = direct page members only (already ~complete)
+      include_subcats: false
+
+  dc_fandom:
+    api: "https://dc.fandom.com/api.php"
+    use_maxlag: false
+    discovery:
+      categories:
+        - "Characters"
+      max_depth: 0
+      include_subcats: false
