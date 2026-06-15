@@ -63,7 +63,9 @@ def _iter_category_members(client: MediaWikiClient, cat_title: str) -> Iterator[
             "cmtitle": cat_title,
             "cmlimit": "500",
             "cmtype": "page|subcat",
-            "cmprop": "ids|title|type|ns",
+            # NB: 'ns' is NOT a valid cmprop value (MediaWiki returns ns by
+            # default); requesting it triggers an API warning. Keep it out.
+            "cmprop": "ids|title|type",
         }
         params.update(cont)
         data = client.get(params)

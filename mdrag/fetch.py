@@ -16,7 +16,7 @@ import logging
 from typing import Dict, List
 
 from .client import MediaWikiClient
-from .parse import parse_infobox
+from .parse import parse_infobox, wikitext_to_text
 
 log = logging.getLogger("mdrag.fetch")
 
@@ -69,6 +69,10 @@ def _normalize(source: str, page: Dict) -> Dict:
     categories = [c.get("title", "") for c in (page.get("categories") or [])]
     pageprops = page.get("pageprops") or {}
 
+    # Wikipedia returns clean prose via prop=extracts. Fandom wikis don't have
+    # that extension, so fall back to stripping the raw wikitext.
+    text = extract or wikitext_to_text(wikitext)
+
     return {
         "id": f"{source}:{page['pageid']}",
         "pageid": page["pageid"],
@@ -76,7 +80,7 @@ def _normalize(source: str, page: Dict) -> Dict:
         "title": title,
         "url": page.get("fullurl", ""),
         "revid": revid,
-        "text": extract,
+        "text": text,
         "infobox": parse_infobox(wikitext),
         "categories": categories,
         "wikibase_item": pageprops.get("wikibase_item"),

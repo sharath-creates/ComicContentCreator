@@ -1,4 +1,9 @@
+# Phase 1 — extraction
 requests>=2.31
 mwparserfromhell>=0.6.6
 PyYAML>=6.0
 tqdm>=4.66
+
+# Phase 2 — chunking / embedding / indexing
+chromadb>=0.5
+sentence-transformers>=3.0

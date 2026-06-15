@@ -4,6 +4,17 @@
 contact: "sharath199717@gmail.com"
 data_dir: "data/raw"
 
+# Phase 2 — storage / indexing
+storage:
+  chroma_path: "data/chroma"
+  catalog_path: "data/catalog.sqlite"
+  embed_model: "BAAI/bge-large-en-v1.5"   # local, free; swap for bge-m3 if multilingual
+  query_instruction: "Represent this sentence for searching relevant passages: "
+  device: null                             # e.g. "cuda" if you have a GPU
+  chunk_max_chars: 1500
+  chunk_overlap_chars: 200
+  embed_batch: 128
+
 # Politeness / robustness
 request_delay_seconds: 1.0      # min delay between requests to the same host
 max_retries: 5                  # retries on 429/503/network errors

@@ -81,6 +81,37 @@ Each record:
 `data/raw/` is the immutable source of truth. Phase 2 reads from it — you never
 re-scrape just to re-chunk or re-embed.
 
+## Phase 2 — ingest into the vector store
+
+Chunks each character record, embeds the chunks with a local BGE model, and
+indexes them into a persistent ChromaDB collection. A SQLite catalog tracks what
+is indexed.
+
+```bash
+pip install -r requirements.txt        # adds chromadb + sentence-transformers
+
+python ingest.py index -v              # chunk + embed + index all sources
+python ingest.py status                # indexed characters / chunks per source
+python ingest.py query "who is Venom?" -k 5
+python ingest.py query "Gotham vigilante" --source dc_fandom
+```
+
+The first `index` run downloads the embedding model (`BAAI/bge-large-en-v1.5`
+by default; change `storage.embed_model` in `config.yaml`, e.g. to
+`BAAI/bge-m3`). With no GPU it runs on CPU; set `storage.device: cuda` if you
+have one.
+
+Indexing is **resumable**: a character whose revision is already in the catalog
+is skipped, so re-running only processes new or changed pages. Outputs:
+
+| Path | Contents |
+|------|----------|
+| `data/chroma/` | ChromaDB collection `comics` (chunk vectors + metadata) |
+| `data/catalog.sqlite` | per-character provenance and chunk counts |
+
+Each chunk carries metadata (`character`, `source`, `url`, `chunk_index`) so the
+Phase 3 RAG layer can filter before searching and cite sources after.
+
 ## Scope notes
 
 - **Marvel/DC Fandom** databases auto-categorize every character under

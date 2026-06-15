@@ -17,6 +17,24 @@ import mwparserfromhell
 log = logging.getLogger("mdrag.parse")
 
 
+def wikitext_to_text(wikitext: Optional[str]) -> str:
+    """Strip wiki markup down to readable prose.
+
+    Needed for Fandom wikis, which (unlike Wikipedia) don't run the
+    TextExtracts extension, so ``prop=extracts`` is unavailable there. We
+    fall back to stripping the raw wikitext instead, which works on any
+    MediaWiki.
+    """
+    if not wikitext:
+        return ""
+    try:
+        code = mwparserfromhell.parse(wikitext)
+        return code.strip_code(normalize=True, collapse=True).strip()
+    except Exception as exc:
+        log.warning("wikitext strip failed: %s", exc)
+        return ""
+
+
 def parse_infobox(wikitext: Optional[str]) -> Dict[str, str]:
     if not wikitext:
         return {}
